@@ -28,12 +28,15 @@ Rotas:
 Dependências
 =================
 *   fastapi uvicorn
+*   psutil
 
 Instalação 
 =================
 *   pip install fastapi uvicorn
+*   pip install psutil
 
 Rodar api
 =================
 *   cd api
-*   uvicorn main:app --reload
+*   uvicorn main:app --reload --host 127.0.0.1 --port 5000
+

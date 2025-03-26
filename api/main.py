@@ -1,23 +1,19 @@
 from fastapi import FastAPI
+from Models import Computer, ComputerLinux
+
+actualComputer: Computer = ComputerLinux
 
 app = FastAPI()
 @app.get("/")
-def get_estatisticas():
+def inicial():
     return {"Bem vindo!"}
 
 @app.get("/estatisticas")
 def get_estatisticas():
     return {
-        'memoria' : 2000,
-        'CPU' : 200,
-        'processos' : {
-            {
-                'PID' : 1,
-                'Nome' : "nome",
-                'memoria' : 100,
-                'CPU' : 100
-            }
-        }
+        'memoria' : actualComputer.get_total_memory(),
+        'CPU' : actualComputer.get_cpu_usage(),
+        'processos' : actualComputer.get_processes()
     }
 
 @app.delete("/processos/{PID}/stop")
@@ -35,6 +31,6 @@ def get_permissoes_caminho():
     ]
 
 @app.post("/permissoes/{caminho}")
-def get_permissoes_caminho(item: dict):
+def get_permissoes_caminho(item):
     return True
 
