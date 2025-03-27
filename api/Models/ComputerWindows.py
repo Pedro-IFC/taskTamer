@@ -1,14 +1,17 @@
 import psutil
 import os
 import stat
-import pwd
-import grp
 import time
+import ctypes
+import win32security
+import time
+
 from .Computer import Computer
 
-class ComputerLinux(Computer):
+class ComputerWindows(Computer):
     def getSO(self):
-        return "Linux"
+        return "Windows"
+
     def get_total_memory(self):
         return psutil.virtual_memory().total
 
@@ -57,6 +60,7 @@ class ComputerLinux(Computer):
             return f"Erro: Permissão negada para finalizar o processo {PID}."
         except Exception as e:
             return f"Erro ao finalizar o processo {PID}: {e}"
+        
     def continueProcess(self, PID):
         try:
             proc = psutil.Process(int(PID))
@@ -70,16 +74,25 @@ class ComputerLinux(Computer):
             return f"Erro: Permissão negada para retomar o processo {PID}."
         except Exception as e:
             return f"Erro ao retomar o processo {PID}: {e}"
+            
     def get_permissoes_caminho(self, caminho):
         try:
             info = os.stat(caminho)
-            permissoes = stat.filemode(info.st_mode)
-            dono = pwd.getpwuid(info.st_uid).pw_name
-            grupo = grp.getgrgid(info.st_gid).gr_name
+            permissoes_str = stat.filemode(info.st_mode)
+
+            sd = win32security.GetFileSecurity(caminho, win32security.OWNER_SECURITY_INFORMATION)
+            dono_sid = sd.GetSecurityDescriptorOwner()
+            dono, _, _ = win32security.LookupAccountSid(None, dono_sid)
+
+            sd = win32security.GetFileSecurity(caminho, win32security.GROUP_SECURITY_INFORMATION)
+            grupo_sid = sd.GetSecurityDescriptorGroup()
+            grupo, _, _ = win32security.LookupAccountSid(None, grupo_sid)
+
             tamanho = info.st_size
             data_modificacao = time.strftime("%b %d %H:%M", time.localtime(info.st_mtime))
+
             return {
-                "permissoes": permissoes,
+                "permissoes": permissoes_str,
                 "dono": dono,
                 "grupo": grupo,
                 "tamanho": tamanho,

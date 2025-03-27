@@ -34,7 +34,12 @@ Instalação
 =================
 *   pip install fastapi uvicorn
 *   pip install psutil
-
+*   pip install abc
+*   pip install os
+*   pip install stat
+*   pip install pwd
+*   pip install grp
+*   pip install time
 Rodar api
 =================
 *   cd api
