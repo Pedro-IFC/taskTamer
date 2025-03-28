@@ -25,7 +25,7 @@ class ComputerWindows(Computer):
                 info = proc.info
                 processos.append({
                     'PID': info['pid'],
-                    'Nome': info['name'],
+                    'nome': info['name'],
                     'memoria': info['memory_info'].rss, 
                     'CPU': info['cpu_percent'] 
                 })

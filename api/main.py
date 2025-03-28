@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from Models import Computer, ComputerWindows
+from fastapi.middleware.cors import CORSMiddleware
+origins = ["*"]
 
 actualComputer: Computer = ComputerWindows()
 
@@ -37,3 +39,11 @@ def get_permissoes_caminho(caminho):
 def update_permissoes(caminho, permissoes):
     return actualComputer.update_permissoes_caminho(caminho, permissoes)
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Permitir apenas essas origens
+    allow_credentials=True,
+    allow_methods=["*"],  # Permitir todos os métodos (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Permitir todos os cabeçalhos
+)

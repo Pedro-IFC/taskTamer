@@ -19,7 +19,7 @@
                                 </div>
                                 <div class="flex flex-col w-1/2">
                                     <x-input-label for="url" :value="__('URL')" />
-                                    <x-text-input id="url" class="block mt-1 w-full" type="url" name="url" :value="old('url')" required autofocus />
+                                    <x-text-input id="url" class="block mt-1 w-full" type="text" name="url" :value="old('url')" required autofocus />
                                 </div>
                                 <div class="flex flex-col w-1/4">
                                     <x-input-label for="password" :value="__('PASSWORD')" />
