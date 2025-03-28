@@ -22,7 +22,7 @@ test('password can be updated', function () {
     $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
 });
 
-test('correct password must be provided to update password', function () {
+test('a senha correta deve ser fornecida para atualizar a senha', function () {
     $user = User::factory()->create();
 
     $response = $this

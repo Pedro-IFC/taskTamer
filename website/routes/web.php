@@ -1,19 +1,26 @@
 <?php
 
+use App\Http\Controllers\MachineController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Machine;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $maquinas = Machine::where('user_id', Auth::id())->get();
+    return view('dashboard', ["maquinas"=>$maquinas]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/dashboard/{id}', function () {
-    return view('dashboard.maquina');
-})->middleware(['auth', 'verified'])->name('dashboard.maquina');
+Route::get('/dashboard/{id}', [MachineController::class, 'view'])->middleware(['auth', 'verified'])->name('dashboard.maquina');
+Route::get('/machine/deletar/{id}', [MachineController::class, 'delete'])->middleware(['auth', 'verified'])->name('deletar.maquina');
+
+Route::post('/machine/', [MachineController::class, 'register'])->middleware(['auth', 'verified'])->name('register-machine');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
