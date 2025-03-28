@@ -19,15 +19,15 @@ def get_estatisticas():
         'processos' : actualComputer.get_processes()
     }
 
-@app.delete("/processos/{PID}/stop")
+@app.post("/processos/{PID}/stop")
 def parar_processo(PID):
     return actualComputer.stopProcess(PID)
 
-@app.put("/processos/{PID}/continue")
+@app.post("/processos/{PID}/continue")
 def parar_processo(PID):
     return actualComputer.continueProcess(PID)
 
-@app.delete("/processos/{PID}/kill")
+@app.post("/processos/{PID}/kill")
 def matar_processo(PID):
     return actualComputer.killProcess(PID)
 

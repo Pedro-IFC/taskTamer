@@ -12,7 +12,7 @@
                     <div class="p-6 text-gray-900">
                         <form action="{{route('register-machine')}}" method="POST">
                             @csrf
-                            <div class="flex items-start justify-between gap-4"> <!-- Alinha os elementos pelo topo -->
+                            <div class="flex items-end  justify-between gap-4"> <!-- Alinha os elementos pelo topo -->
                                 <div class="flex flex-col w-1/2">
                                     <x-input-label for="name" :value="__('Nome')" />
                                     <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('url')" required autofocus />
@@ -34,13 +34,13 @@
                         </form>
                     </div>
                 </div>
-                <div class="max-w-[25%] w-full bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="max-w-[30%] w-full bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         @foreach ($maquinas as $maquina)
                             <div class="py-1" >
-                                <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-center justify-left gap-1">
+                                    <a href="{{route('deletar.maquina', $maquina->id)}}" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"><i class="fa-solid fa-xmark"></i></a>
                                     <a href="{{route('dashboard.maquina', $maquina->id)}}">{{ $maquina->name }} -> {{ $maquina->url }}</a>
-                                    <a href="{{route('deletar.maquina', $maquina->id)}}">X</a>
                                 </div>
                             </div>
                         @endforeach

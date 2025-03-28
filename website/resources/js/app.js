@@ -16,20 +16,69 @@ $(document).ready(function () {
             "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
         }
     });
-
-    // Eventos para os botões de ação
-    $(".stop").click(function() {
-        let pid = $(this).data("pid");
-        alert("Parando processo: " + pid);
+    $(".continue-process").click(function() {
+        let url = $(this).attr("url");
+        let idMachine = $(this).attr("idmachine");
+        $.ajax({
+            url: url + "/processos/" + idMachine + "/continue",
+            method: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Processo continuado com sucesso",
+                });
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Algo deu errado!",
+                });
+            }
+        });
     });
-
-    $(".continue").click(function() {
-        let pid = $(this).data("pid");
-        alert("Continuando processo: " + pid);
+    $(".stop-process").click(function() {
+        let url = $(this).attr("url");
+        let idMachine = $(this).attr("idmachine");
+        $.ajax({
+            url: url + "/processos/" + idMachine + "/stop",
+            method: 'POST',
+            success: function(response) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Processo pausado com sucesso",
+                });
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Algo deu errado!",
+                });
+            }
+        });
     });
-
-    $(".kill").click(function() {
-        let pid = $(this).data("pid");
-        alert("Matando processo: " + pid);
+    $(".kill-process").click(function() {
+        let url = $(this).attr("url");
+        let idMachine = $(this).attr("idmachine");
+        $.ajax({
+            url: url + "/processos/" + idMachine + "/kill",
+            method: 'POST',
+            success: function(response) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Processo morto com sucesso",
+                });
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Algo deu errado!",
+                });
+            }
+        });
     });
 });
+
