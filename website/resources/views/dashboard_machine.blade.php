@@ -42,12 +42,11 @@
                         <tbody>
                             @php
                                 header("Content-Type: application/json");
-                                $url = "http://127.0.0.1:5000/estatisticas"; // URL da API FastAPI
+                                $url = "http://".$maquina->url."/estatisticas"; // URL da API FastAPI
                                 $ch = curl_init($url);
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                                 $response = json_decode(curl_exec($ch));
                             @endphp
-                            @foreach($response->processos as $processo)
                                 <tr>
                                     <td>{{$processo->nome}}</td>
                                     <td>{{$processo->PID}}</td>

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from Models import Computer, ComputerWindows
+from Models import Computer, ComputerLinux
 from fastapi.middleware.cors import CORSMiddleware
 origins = ["*"]
 
-actualComputer: Computer = ComputerWindows()
+actualComputer: Computer = ComputerLinux()
 
 app = FastAPI()
 @app.get("/")
