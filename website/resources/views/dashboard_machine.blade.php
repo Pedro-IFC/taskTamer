@@ -47,6 +47,7 @@
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                                 $response = json_decode(curl_exec($ch));
                             @endphp
+                            @foreach($response->processos as $processo)
                                 <tr>
                                     <td>{{$processo->nome}}</td>
                                     <td>{{$processo->PID}}</td>
