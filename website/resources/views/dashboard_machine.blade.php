@@ -12,20 +12,20 @@
                     <h1 class="text-4xl">{{$maquina->name}}</h1>
                     <h2 class="text-3xl">{{$maquina->url}}</h2>
                 </div>
-                <div class="flex items-start justify-between mb-4">
-                    <div class="container w-1/2 grafico1">
-                        cpu
+
+                <div class="flex flex-wrap gap-4 mb-4">
+                    <div class="w-full md:w-1/2 p-4 bg-gray-50 rounded-lg shadow">
+                        <h3 class="text-lg font-medium mb-2">Monitoramento da CPU</h3>
+                        <div class="relative h-64">
+                            <canvas id="cpuChart" class="absolute inset-0 w-full h-full"></canvas>
+                        </div>
                     </div>
-                    <div class="container w-1/2 grafico2">
-                        memoria
-                    </div>
-                </div>
-                <div class="flex items-start justify-between">
-                    <div>
-                        Grafico memória
-                    </div>
-                    <div>
-                        Grafico CPU
+                    
+                    <div class="w-full md:w-1/2 p-4 bg-gray-50 rounded-lg shadow">
+                        <h3 class="text-lg font-medium mb-2">Uso de Memória</h3>
+                        <div class="relative h-64">
+                            <canvas id="memoryChart" class="absolute inset-0 w-full h-full"></canvas>
+                        </div>
                     </div>
                 </div>
                 <div class="row processos py-4">
@@ -42,7 +42,7 @@
                         <tbody>
                             @php
                                 header("Content-Type: application/json");
-                                $url = "http://".$maquina->url."/estatisticas"; // URL da API FastAPI
+                                $url = "http://127.0.0.1:8000/estatisticas"; 
                                 $ch = curl_init($url);
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                                 $response = json_decode(curl_exec($ch));
@@ -67,4 +67,105 @@
             </div>
         </div>
     </div>
+    @push('scripts')
+    <script type="module">
+        import Chart from 'chart.js/auto';
+
+        let cpuChart, memoryChart;
+        const maxDataPoints = 15;
+        const updateInterval = 3000; // 3 segundos
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/estatisticas');
+                return await response.json();
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                return null;
+            }
+        }
+
+        function initCharts() {
+            const cpuCtx = document.getElementById('cpuChart');
+            const memoryCtx = document.getElementById('memoryChart');
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: (value) => value + '%'
+                        }
+                    }
+                }
+            };
+
+            cpuChart = new Chart(cpuCtx, {
+                type: 'line',
+                data: {
+                    labels: Array(maxDataPoints).fill(''),
+                    datasets: [{
+                        label: 'Uso da CPU (%)',
+                        data: [],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: chartOptions
+            });
+
+            memoryChart = new Chart(memoryCtx, {
+                type: 'line',
+                data: {
+                    labels: Array(maxDataPoints).fill(''),
+                    datasets: [{
+                        label: 'Uso de Memória (%)',
+                        data: [],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        async function updateCharts() {
+            const data = await fetchStats();
+            if (!data) return;
+
+            cpuChart.data.datasets[0].data = [
+                ...cpuChart.data.datasets[0].data.slice(-maxDataPoints + 1),
+                data.CPU
+            ];
+
+            const usedMemory = data.processos.reduce((sum, proc) => sum + proc.memoria, 0);
+            const memoryPercent = (usedMemory / data.memoria * 100).toFixed(2);
+            
+            memoryChart.data.datasets[0].data = [
+                ...memoryChart.data.datasets[0].data.slice(-maxDataPoints + 1),
+                parseFloat(memoryPercent)
+            ];
+
+            cpuChart.update();
+            memoryChart.update();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            setInterval(updateCharts, updateInterval);
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (cpuChart) cpuChart.destroy();
+            if (memoryChart) memoryChart.destroy();
+        });
+    </script>
+    @endpush
 </x-app-layout>
