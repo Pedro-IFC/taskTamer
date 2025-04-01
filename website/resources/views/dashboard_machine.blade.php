@@ -3,30 +3,60 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ $maquina->name }}
         </h2>
+        @php
+            header("Content-Type: application/json");
+            $url = $maquina->url."/estatisticas";
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = json_decode(curl_exec($ch));
+        @endphp
     </x-slot>
-
+    <div id="url" style="display: none">{{$maquina->url}}</div>
     <div class="py-12 flex items-start justify-center">
-        <div class="container w-4/5 bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="container w-6/7 bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="w-3xl sm:px-6 lg:px-8 mb-4">
-                <div class="info py-6 mb-4">
-                    <h1 class="text-4xl">{{$maquina->name}}</h1>
-                    <h2 class="text-3xl">{{$maquina->url}}</h2>
-                </div>
-
-                <div class="flex flex-wrap gap-4 mb-4">
-                    <div class="w-full md:w-1/2 p-4 bg-gray-50 rounded-lg shadow">
+                <div class="flex flex-wrap justify-between mt-8">
+                    <div class="info md:w-1/6">
+                        <h1 class="text-4xl">{{$maquina->name}}</h1>
+                        <h1 class="text-2xl">Sistema: {{$response->SO}}</h1>
+                        <h2 class="text-1xl">{{$maquina->url}}</h2>
+                    </div>
+                    <div class="w-full md:w-2/6 p-4 bg-gray-50 rounded-lg shadow">
                         <h3 class="text-lg font-medium mb-2">Monitoramento da CPU</h3>
                         <div class="relative h-64">
                             <canvas id="cpuChart" class="absolute inset-0 w-full h-full"></canvas>
                         </div>
                     </div>
-                    
-                    <div class="w-full md:w-1/2 p-4 bg-gray-50 rounded-lg shadow">
+                    <div class="w-full md:w-2/6 p-4 bg-gray-50 rounded-lg shadow">
                         <h3 class="text-lg font-medium mb-2">Uso de Memória</h3>
                         <div class="relative h-64">
                             <canvas id="memoryChart" class="absolute inset-0 w-full h-full"></canvas>
                         </div>
                     </div>
+                </div>
+                <div class="w-6/7 flex flex-wrap justify-between py-10">
+                    <div class="block">
+                        <input class="w-full" type="text" id="verify-permission" placeholder="Digite o caminho">
+                        <div id="retorno-permissao"></div>
+                    </div>
+                    <div class="block">
+                        <input type="text" id="usuario" placeholder="Usuário">
+                    </div>
+                    <div class="block">
+                        <input type="text" id="permissao_usuario" placeholder="Permissao de usuário">
+                    </div>
+                    <div class="block">
+                        <input type="text" id="gruoo" placeholder="Grupo">
+                    </div>
+                    <div class="block">
+                        <input type="text" id="permissao_grupo" placeholder="Permissao de grupo">
+                    </div>
+                    <div class="block">
+                        <button id="atualizar-permissao" type="button" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">Atualizar Permissão</button>
+                    </div>
+                </div>
+                <div class="block">
+                    <button id="atualizar-processos" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Atualizar registros</button>
                 </div>
                 <div class="row processos py-4">
                     <table id="process">
@@ -40,13 +70,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                header("Content-Type: application/json");
-                                $url = "http://127.0.0.1:8000/estatisticas"; 
-                                $ch = curl_init($url);
-                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                                $response = json_decode(curl_exec($ch));
-                            @endphp
                             @foreach($response->processos as $processo)
                                 <tr>
                                     <td>{{$processo->nome}}</td>
@@ -67,105 +90,4 @@
             </div>
         </div>
     </div>
-    @push('scripts')
-    <script type="module">
-        import Chart from 'chart.js/auto';
-
-        let cpuChart, memoryChart;
-        const maxDataPoints = 15;
-        const updateInterval = 3000; // 3 segundos
-
-        async function fetchStats() {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/estatisticas');
-                return await response.json();
-            } catch (error) {
-                console.error('Erro na requisição:', error);
-                return null;
-            }
-        }
-
-        function initCharts() {
-            const cpuCtx = document.getElementById('cpuChart');
-            const memoryCtx = document.getElementById('memoryChart');
-
-            const chartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: (value) => value + '%'
-                        }
-                    }
-                }
-            };
-
-            cpuChart = new Chart(cpuCtx, {
-                type: 'line',
-                data: {
-                    labels: Array(maxDataPoints).fill(''),
-                    datasets: [{
-                        label: 'Uso da CPU (%)',
-                        data: [],
-                        borderColor: '#3B82F6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.3
-                    }]
-                },
-                options: chartOptions
-            });
-
-            memoryChart = new Chart(memoryCtx, {
-                type: 'line',
-                data: {
-                    labels: Array(maxDataPoints).fill(''),
-                    datasets: [{
-                        label: 'Uso de Memória (%)',
-                        data: [],
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.3
-                    }]
-                },
-                options: chartOptions
-            });
-        }
-
-        async function updateCharts() {
-            const data = await fetchStats();
-            if (!data) return;
-
-            cpuChart.data.datasets[0].data = [
-                ...cpuChart.data.datasets[0].data.slice(-maxDataPoints + 1),
-                data.CPU
-            ];
-
-            const usedMemory = data.processos.reduce((sum, proc) => sum + proc.memoria, 0);
-            const memoryPercent = (usedMemory / data.memoria * 100).toFixed(2);
-            
-            memoryChart.data.datasets[0].data = [
-                ...memoryChart.data.datasets[0].data.slice(-maxDataPoints + 1),
-                parseFloat(memoryPercent)
-            ];
-
-            cpuChart.update();
-            memoryChart.update();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initCharts();
-            setInterval(updateCharts, updateInterval);
-        });
-
-        window.addEventListener('beforeunload', () => {
-            if (cpuChart) cpuChart.destroy();
-            if (memoryChart) memoryChart.destroy();
-        });
-    </script>
-    @endpush
 </x-app-layout>

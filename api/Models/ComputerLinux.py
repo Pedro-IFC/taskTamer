@@ -12,6 +12,9 @@ class ComputerLinux(Computer):
     def get_total_memory(self):
         return psutil.virtual_memory().total
 
+    def get_memory_usage(self):
+        return psutil.virtual_memory().used
+    
     def get_cpu_usage(self):
         return psutil.cpu_percent(interval=1)
 

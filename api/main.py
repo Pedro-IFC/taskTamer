@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from Models import Computer, ComputerLinux
+from Models import Computer, ComputerWindows
 from fastapi.middleware.cors import CORSMiddleware
 origins = ["*"]
 
-actualComputer: Computer = ComputerLinux()
+actualComputer: Computer = ComputerWindows()
 
 app = FastAPI()
 @app.get("/")
@@ -15,6 +15,7 @@ def get_estatisticas():
     return {
         'SO' : actualComputer.getSO(),
         'memoria' : actualComputer.get_total_memory(),
+        'memoria_usada' : actualComputer.get_memory_usage(),
         'CPU' : actualComputer.get_cpu_usage(),
         'processos' : actualComputer.get_processes()
     }
@@ -36,8 +37,8 @@ def get_permissoes_caminho(caminho):
     return actualComputer.get_permissoes_caminho(caminho)
 
 @app.put("/permissoes/")
-def update_permissoes(caminho, permissoes):
-    return actualComputer.update_permissoes_caminho(caminho, permissoes)
+def update_permissoes(caminho, usuario, permissao_usuario, grupo, permissao_grupo):
+    return actualComputer.update_permissoes_caminho(caminho, usuario, permissao_usuario, grupo, permissao_grupo)
 
 
 app.add_middleware(

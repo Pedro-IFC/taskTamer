@@ -15,6 +15,9 @@ class ComputerWindows(Computer):
     def get_total_memory(self):
         return psutil.virtual_memory().total
 
+    def get_memory_usage(self):
+        return psutil.virtual_memory().used
+
     def get_cpu_usage(self):
         return psutil.cpu_percent(interval=1)
 
@@ -105,23 +108,29 @@ class ComputerWindows(Computer):
         except Exception as e:
             return f"Erro ao obter permissões de '{caminho}': {e}"
         
-    def update_permissoes_caminho(self, caminho, permissoes):
+    def update_permissoes_caminho(self, caminho, usuario, permissao_usuario, grupo, permissao_grupo):
         try:
-            modo_numerico = 0
-            mapeamento = {'r': 4, 'w': 2, 'x': 1, '-': 0}
-            if len(permissoes) != 9:
-                return "Erro: A string de permissões deve ter exatamente 9 caracteres (ex: 'rwxr----x')."
-            for i, char in enumerate(permissoes):
-                if char not in mapeamento:
-                    return f"Erro: Caractere inválido '{char}' nas permissões."
-                if i % 3 == 0:
-                    modo_numerico *= 10  # Move o valor para a esquerda
-                modo_numerico += mapeamento[char]
-            os.chmod(caminho, int(str(modo_numerico), 8))
-            return f"Permissões de '{caminho}' alteradas para '{permissoes}'."
-        except FileNotFoundError:
-            return f"Erro: O caminho '{caminho}' não foi encontrado."
-        except PermissionError:
-            return f"Erro: Permissão negada para modificar '{caminho}'."
+            sd = win32security.GetFileSecurity(caminho, win32security.DACL_SECURITY_INFORMATION)
+            
+            dacl = sd.GetSecurityDescriptorDacl()
+            if dacl is None:
+                dacl = win32security.ACL()
+
+            user_sid, domain, type = win32security.LookupAccountName(None, usuario)
+            group_sid, domain, type = win32security.LookupAccountName(None, grupo)
+            
+            nova_dacl = win32security.ACL()
+            for i in range(dacl.GetAceCount()):
+                ace = dacl.GetAce(i)
+                if ace[2] not in (user_sid, group_sid):
+                    nova_dacl.AddAccessAllowedAceEx(ace[0], ace[1], ace[2])
+            
+            nova_dacl.AddAccessAllowedAce(win32security.ACL_REVISION, permissao_usuario, user_sid)
+            nova_dacl.AddAccessAllowedAce(win32security.ACL_REVISION, permissao_grupo, group_sid)
+            
+            sd.SetSecurityDescriptorDacl(1, nova_dacl, 0)
+            win32security.SetFileSecurity(caminho, win32security.DACL_SECURITY_INFORMATION, sd)
+            
+            return f"Permissões atualizadas com sucesso para '{caminho}'."
         except Exception as e:
-            return f"Erro ao processar '{caminho}': {e}"
+            return f"Erro ao atualizar permissões de '{caminho}': {e}"

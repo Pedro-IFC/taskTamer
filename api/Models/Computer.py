@@ -8,6 +8,11 @@ class Computer(ABC):
     @abstractmethod
     def get_total_memory(self):
         pass
+    
+    @abstractmethod
+    def get_memory_usage(self):
+        pass
+
 
     @abstractmethod
     def get_cpu_usage(self):
@@ -30,5 +35,5 @@ class Computer(ABC):
     def get_permissoes_caminho(self, caminho):
         pass
     @abstractmethod
-    def update_permissoes_caminho(self, caminho, permissoes):
+    def update_permissoes_caminho(self, caminho, usuario, permissao_usuario, grupo, permissao_grupo):
         pass
