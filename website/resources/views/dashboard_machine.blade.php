@@ -46,7 +46,7 @@
                         <input type="text" id="permissao_usuario" placeholder="Permissao de usuário">
                     </div>
                     <div class="block">
-                        <input type="text" id="gruoo" placeholder="Grupo">
+                        <input type="text" id="grupo" placeholder="Grupo">
                     </div>
                     <div class="block">
                         <input type="text" id="permissao_grupo" placeholder="Permissao de grupo">
@@ -78,9 +78,9 @@
                                     <td>{{$processo->memoria}}</td>
                                     <td>
                                         <div>
-                                            <button idmachine="{{$processo->PID}}" url="{{$maquina->url}}" class="continue-process focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2  dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900"><i class="fa-solid fa-play"></i></button>
-                                            <button idmachine="{{$processo->PID}}" url="{{$maquina->url}}" class="stop-process focus:outline-none text-white bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2  dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-900"><i class="fa-solid fa-xmark"></i></button>
-                                            <button idmachine="{{$processo->PID}}" url="{{$maquina->url}}" class="kill-process focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"><i class="fa-solid fa-stop"></i></button>
+                                            <button idmachine="{{$processo->PID}}" url="http://{{$maquina->url}}" class="continue-process focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2  dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900"><i class="fa-solid fa-play"></i></button>
+                                            <button idmachine="{{$processo->PID}}" url="http://{{$maquina->url}}" class="stop-process focus:outline-none text-white bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2  dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-900"><i class="fa-solid fa-xmark"></i></button>
+                                            <button idmachine="{{$processo->PID}}" url="http://{{$maquina->url}}" class="kill-process focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"><i class="fa-solid fa-stop"></i></button>
                                         </div>
                                     </td>
                                 </tr>

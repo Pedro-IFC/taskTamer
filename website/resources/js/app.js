@@ -146,8 +146,8 @@ const adicionarEventosBotoes = () => {
     $(".continue-process").click(function() {
         const url = $(this).attr("url");
         const idMachine = $(this).attr("idmachine");
-        $.post(url + "/processos/" + idMachine + "/continue", function() {
-            Swal.fire({ icon: "success", title: "Processo continuado com sucesso" });
+        $.post(url + "/processos/" + idMachine + "/continue", function(response) {
+            Swal.fire({ title: response});
         }).fail(function() {
             Swal.fire({ icon: "error", title: "Oops...", text: "Algo deu errado!" });
         });
@@ -156,8 +156,8 @@ const adicionarEventosBotoes = () => {
     $(".stop-process").click(function() {
         const url = $(this).attr("url");
         const idMachine = $(this).attr("idmachine");
-        $.post(url + "/processos/" + idMachine + "/stop", function() {
-            Swal.fire({ icon: "success", title: "Processo pausado com sucesso" });
+        $.post(url + "/processos/" + idMachine + "/stop", function(response) {
+            Swal.fire({ title: response});
         }).fail(function() {
             Swal.fire({ icon: "error", title: "Oops...", text: "Algo deu errado!" });
         });
@@ -166,8 +166,8 @@ const adicionarEventosBotoes = () => {
     $(".kill-process").click(function() {
         const url = $(this).attr("url");
         const idMachine = $(this).attr("idmachine");
-        $.post(url + "/processos/" + idMachine + "/kill", function() {
-            Swal.fire({ icon: "success", title: "Processo morto com sucesso" });
+        $.post(url + "/processos/" + idMachine + "/kill", function(response) {
+            Swal.fire({ title: response});
         }).fail(function() {
             Swal.fire({ icon: "error", title: "Oops...", text: "Algo deu errado!" });
         });
