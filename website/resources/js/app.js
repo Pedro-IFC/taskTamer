@@ -232,14 +232,37 @@ $("#atualizar-permissao").on("click", function(){
             Swal.showLoading();
         }
     });
-    $.put(urlGeral + "/permissoes/", {
-        caminho: $("#verify-permission").val(),
-        usuario: $("#usuario").val(),
-        permissao_usuario: $("#permissao_usuario").val(),
-        grupo: $("#grupo").val(),
-        permissao_grupo: $("#permissao_grupo").val()
-    }, function(response) {
-        console.log(response.data)
-        Swal.close();
+    $.ajax({
+        url: urlGeral + "/permissoes/",
+        type: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify({
+            caminho: $("#verify-permission").val(),
+            usuario: $("#usuario").val(),
+            permissao_usuario: $("#permissao_usuario").val(),
+            grupo: $("#grupo").val(),
+            permissao_grupo: $("#permissao_grupo").val()
+        }),
+        success: function(response) {
+            console.log(response.data);
+            Swal.close();
+            $.get(urlGeral + "/permissoes/", {"caminho": $("#verify-permission").val()}, function(response) {
+                let html = "";
+                if(response.data_modificacao){
+                    html = `<table border="1" cellspacing="0" cellpadding="5">
+                        <tr><th>Propriedade</th><th>Valor</th></tr>
+                        <tr><td>Data Modificação</td><td>${response.data_modificacao}</td></tr>
+                        <tr><td>Dono</td><td>${response.dono}</td></tr>
+                        <tr><td>Grupo</td><td>${response.grupo}</td></tr>
+                        <tr><td>Permissões</td><td>${response.permissoes}</td></tr>
+                        <tr><td>Tamanho</td><td>${response.tamanho}</td></tr>
+                    </table>`;
+                }
+                $("#retorno-permissao").html(html);
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Erro ao atualizar permissões:", error);
+        }
     });
 });
