@@ -6,7 +6,7 @@ let cpuChart, memoryChart;
 const updateInterval = 400;
 const maxDataPoints = 10;
 
-const urlGeral = document.querySelector('#url').innerHTML;
+const urlGeral = "http://"+document.querySelector('#url').innerHTML;
 
 const initializeCharts = () => {
     const cpuCtx = document.getElementById('cpuChart')?.getContext('2d');
@@ -51,11 +51,11 @@ const initializeCharts = () => {
 
 const updateChart = (chart, value) => {
     const dataset = chart.data.datasets[0];
+    
     dataset.data.push(value);
-
+    
     if (dataset.data.length > maxDataPoints) {
-        dataset.data.shift();
-        chart.data.labels.shift();
+        dataset.data.shift(); // Remove o primeiro elemento dos dados
     }
 
     chart.update();
@@ -92,6 +92,7 @@ $(document).ready(function () {
         setInterval(updateCharts, 3000);
     }
 });
+
 const atualizarProcessos = async () => {
     try {
         const response = await fetch(urlGeral + "/estatisticas");
