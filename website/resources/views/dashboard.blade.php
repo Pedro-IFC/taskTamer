@@ -21,10 +21,6 @@
                                     <x-input-label for="url" :value="__('URL')" />
                                     <x-text-input id="url" class="block mt-1 w-full" type="text" name="url" :value="old('url')" required autofocus />
                                 </div>
-                                <div class="flex flex-col w-1/4">
-                                    <x-input-label for="password" :value="__('PASSWORD')" />
-                                    <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" :value="old('password')" required autofocus />
-                                </div>
                                 <div class="w-1/4 flex items-end"> <!-- Alinha o botão corretamente -->
                                     <x-primary-button class="w-full">
                                         {{ __('Salvar') }}

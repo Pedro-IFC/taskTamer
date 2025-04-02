@@ -2,9 +2,9 @@ import psutil
 import os
 import stat
 import time
-import ctypes
 import win32security
-import time
+import win32api
+from fastapi import HTTPException
 
 from .Computer import Computer
 
@@ -108,29 +108,18 @@ class ComputerWindows(Computer):
         except Exception as e:
             return f"Erro ao obter permissões de '{caminho}': {e}"
         
-    def update_permissoes_caminho(self, caminho, usuario, permissao_usuario, grupo, permissao_grupo):
-        try:
-            sd = win32security.GetFileSecurity(caminho, win32security.DACL_SECURITY_INFORMATION)
-            
-            dacl = sd.GetSecurityDescriptorDacl()
-            if dacl is None:
-                dacl = win32security.ACL()
 
-            user_sid, domain, type = win32security.LookupAccountName(None, usuario)
-            group_sid, domain, type = win32security.LookupAccountName(None, grupo)
-            
-            nova_dacl = win32security.ACL()
-            for i in range(dacl.GetAceCount()):
-                ace = dacl.GetAce(i)
-                if ace[2] not in (user_sid, group_sid):
-                    nova_dacl.AddAccessAllowedAceEx(ace[0], ace[1], ace[2])
-            
-            nova_dacl.AddAccessAllowedAce(win32security.ACL_REVISION, permissao_usuario, user_sid)
-            nova_dacl.AddAccessAllowedAce(win32security.ACL_REVISION, permissao_grupo, group_sid)
-            
-            sd.SetSecurityDescriptorDacl(1, nova_dacl, 0)
-            win32security.SetFileSecurity(caminho, win32security.DACL_SECURITY_INFORMATION, sd)
-            
-            return f"Permissões atualizadas com sucesso para '{caminho}'."
+    
+    def update_permissoes_caminho(self, caminho, permissao):
+        try:
+            permissions_int = int(permissao, 8)  # Converte de octal para inteiro
+            os.chmod(caminho, permissions_int)
+            return {"status": "Permissões atualizadas com sucesso"}
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Permissões inválidas. Use formato octal (ex: 755)")
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="Arquivo/pasta não encontrado")
         except Exception as e:
-            return f"Erro ao atualizar permissões de '{caminho}': {e}"
+            raise HTTPException(status_code=500, detail=str(e))
+
+

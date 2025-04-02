@@ -51,9 +51,9 @@ const initializeCharts = () => {
 
 const updateChart = (chart, value) => {
     const dataset = chart.data.datasets[0];
-    
+
     dataset.data.push(value);
-    
+
     if (dataset.data.length > maxDataPoints) {
         dataset.data.shift(); // Remove o primeiro elemento dos dados
     }
@@ -70,7 +70,7 @@ const updateCharts = async () => {
         const memoryPercent = ((data.memoria_usada * 100 / data.memoria) ).toFixed(2);
         updateChart(memoryChart, parseFloat(memoryPercent));
     } catch (error) {
-        console.error('Erro ao atualizar gráficos:', error);
+        Swal.fire({ icon: "error", title:  "Erro ao atualizar gráficos:", text: error });
     }
 };
 
@@ -113,12 +113,6 @@ const atualizarProcessos = async () => {
                     <td>${processo.memoria}</td>
                     <td>
                         <div>
-                            <button idmachine="${processo.PID}" url="${urlGeral}" class="continue-process focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900">
-                                <i class="fa-solid fa-play"></i>
-                            </button>
-                            <button idmachine="${processo.PID}" url="${urlGeral}" class="stop-process focus:outline-none text-white bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2 dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-900">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
                             <button idmachine="${processo.PID}" url="${urlGeral}" class="kill-process focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
                                 <i class="fa-solid fa-stop"></i>
                             </button>
@@ -139,7 +133,7 @@ const atualizarProcessos = async () => {
             }
         });
     } catch (error) {
-        console.error("Erro ao atualizar processos:", error);
+        Swal.fire({ icon: "error", title:  "Erro ao atualizar processos:", text: error });
     }
 };
 const adicionarEventosBotoes = () => {
@@ -225,45 +219,37 @@ $("#verify-permission").on("change", function(){
     });
 });
 $("#atualizar-permissao").on("click", function(){
-    Swal.fire({
-        title: "Carregando...",
-        text: "Atualizando lista de processos",
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-    $.ajax({
-        url: urlGeral + "/permissoes/",
-        type: "PUT",
-        contentType: "application/json",
-        data: JSON.stringify({
-            caminho: $("#verify-permission").val(),
-            usuario: $("#usuario").val(),
-            permissao_usuario: $("#permissao_usuario").val(),
-            grupo: $("#grupo").val(),
-            permissao_grupo: $("#permissao_grupo").val()
-        }),
-        success: function(response) {
-            console.log(response.data);
-            Swal.close();
-            $.get(urlGeral + "/permissoes/", {"caminho": $("#verify-permission").val()}, function(response) {
-                let html = "";
-                if(response.data_modificacao){
-                    html = `<table border="1" cellspacing="0" cellpadding="5">
-                        <tr><th>Propriedade</th><th>Valor</th></tr>
-                        <tr><td>Data Modificação</td><td>${response.data_modificacao}</td></tr>
-                        <tr><td>Dono</td><td>${response.dono}</td></tr>
-                        <tr><td>Grupo</td><td>${response.grupo}</td></tr>
-                        <tr><td>Permissões</td><td>${response.permissoes}</td></tr>
-                        <tr><td>Tamanho</td><td>${response.tamanho}</td></tr>
-                    </table>`;
-                }
-                $("#retorno-permissao").html(html);
-            });
-        },
-        error: function(xhr, status, error) {
-            console.error("Erro ao atualizar permissões:", error);
-        }
-    });
+    if(!$("#verify-permission").val() || !$("#permissao").val()){
+        Swal.fire({ icon: "error", title:  "Erro ao atualizar permissões:", text: "Campos não podem ser vazios" });
+    }else{
+        $.ajax({
+            url: urlGeral + "/permissoes/",
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify({
+                path: $("#verify-permission").val(),
+                permissions: $("#permissao").val(),
+            }),
+            success: function(response) {
+                Swal.fire({ title: response.status});
+                $.get(urlGeral + "/permissoes/", {"caminho": $("#verify-permission").val()}, function(response) {
+                    let html = "";
+                    if(response.data_modificacao){
+                        html = `<table border="1" cellspacing="0" cellpadding="5">
+                            <tr><th>Propriedade</th><th>Valor</th></tr>
+                            <tr><td>Data Modificação</td><td>${response.data_modificacao}</td></tr>
+                            <tr><td>Dono</td><td>${response.dono}</td></tr>
+                            <tr><td>Grupo</td><td>${response.grupo}</td></tr>
+                            <tr><td>Permissões</td><td>${response.permissoes}</td></tr>
+                            <tr><td>Tamanho</td><td>${response.tamanho}</td></tr>
+                        </table>`;
+                    }
+                    $("#retorno-permissao").html(html);
+                });
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({ icon: "error", title:  "Erro ao atualizar permissões:", text: xhr.responseJSON.detail });
+            }
+        });
+    }
 });

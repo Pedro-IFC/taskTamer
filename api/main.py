@@ -1,9 +1,10 @@
-from fastapi import FastAPI
-from Models import Computer, ComputerLinux
+from fastapi import FastAPI, Header
+from pydantic import BaseModel
+from Models import Computer, ComputerWindows
 from fastapi.middleware.cors import CORSMiddleware
 origins = ["*"]
 
-actualComputer: Computer = ComputerLinux()
+actualComputer: Computer = ComputerWindows()
 
 app = FastAPI()
 @app.get("/")
@@ -36,9 +37,12 @@ def matar_processo(PID):
 def get_permissoes_caminho(caminho):
     return actualComputer.get_permissoes_caminho(caminho)
 
+class PermissionRequest(BaseModel):
+    path: str
+    permissions: str
 @app.put("/permissoes/")
-def update_permissoes(caminho, usuario, permissao_usuario, grupo, permissao_grupo):
-    return actualComputer.update_permissoes_caminho(caminho, usuario, permissao_usuario, grupo, permissao_grupo)
+def update_permissoes(request: PermissionRequest):
+    return actualComputer.update_permissoes_caminho(request.path, request.permissions)
 
 
 app.add_middleware(

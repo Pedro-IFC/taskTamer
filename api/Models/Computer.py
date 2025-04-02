@@ -35,5 +35,5 @@ class Computer(ABC):
     def get_permissoes_caminho(self, caminho):
         pass
     @abstractmethod
-    def update_permissoes_caminho(self, caminho, usuario, permissao_usuario, grupo, permissao_grupo):
+    def update_permissoes_caminho(self, caminho, permissao):
         pass

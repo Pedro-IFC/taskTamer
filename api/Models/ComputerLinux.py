@@ -5,7 +5,7 @@ import pwd
 import grp
 import time
 from .Computer import Computer
-
+from fastapi import HTTPException
 class ComputerLinux(Computer):
     def getSO(self):
         return "Linux"
@@ -95,23 +95,14 @@ class ComputerLinux(Computer):
         except Exception as e:
             return f"Erro ao obter permissões de '{caminho}': {e}"
         
-    def update_permissoes_caminho(self, caminho, permissoes):
+    def update_permissoes_caminho(self, caminho, permissao):
         try:
-            modo_numerico = 0
-            mapeamento = {'r': 4, 'w': 2, 'x': 1, '-': 0}
-            if len(permissoes) != 9:
-                return "Erro: A string de permissões deve ter exatamente 9 caracteres (ex: 'rwxr----x')."
-            for i, char in enumerate(permissoes):
-                if char not in mapeamento:
-                    return f"Erro: Caractere inválido '{char}' nas permissões."
-                if i % 3 == 0:
-                    modo_numerico *= 10  # Move o valor para a esquerda
-                modo_numerico += mapeamento[char]
-            os.chmod(caminho, int(str(modo_numerico), 8))
-            return f"Permissões de '{caminho}' alteradas para '{permissoes}'."
+            permissions_int = int(permissao, 8)  # Converte de octal para inteiro
+            os.chmod(caminho, permissions_int)
+            return {"status": "Permissões atualizadas com sucesso"}
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Permissões inválidas. Use formato octal (ex: 755)")
         except FileNotFoundError:
-            return f"Erro: O caminho '{caminho}' não foi encontrado."
-        except PermissionError:
-            return f"Erro: Permissão negada para modificar '{caminho}'."
+            raise HTTPException(status_code=404, detail="Arquivo/pasta não encontrado")
         except Exception as e:
-            return f"Erro ao processar '{caminho}': {e}"
+            raise HTTPException(status_code=500, detail=str(e))
